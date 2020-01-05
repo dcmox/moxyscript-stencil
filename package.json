@@ -1,5 +1,5 @@
 {
-  "name": "stencil-js",
+  "name": "stenciljs",
   "version": "1.0.0",
   "private": false,
   "description": "Just another template engine written in TypeScript. Mustache compatible!",
