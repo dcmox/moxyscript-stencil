@@ -51,7 +51,7 @@ export const _compileBlock = (section: any, view: IView, comparator?: any): stri
                 innerResult += _compileTags(inner, Object.assign({}, view, item)).trim() + '\n'
             )
         } else if (!Array.isArray(observe)) {
-            innerResult += _compileTags(inner, Object.assign({}, view, observe)).trim()
+            innerResult += _compileTags(inner, Object.assign({}, view, observe))
         }
     }
     return innerResult
@@ -75,12 +75,13 @@ export const compileBlocks = (template: string, view: IView, subTemplates?: ISub
             nTemplate = node ? nTemplate.replace(match, _compileBlock(section, view, node))
                 : nTemplate.replace(match, '')
         } else if ((operator === '#' && view[mVar]) || (operator === '^' && !view[mVar])) {
-            if (~inner.indexOf('{{#' + mVar + '}}')) { // handles cases where we have nested nodes with the same name
+            if (~inner.indexOf('{{#' + mVar + '}}')) { // Handles cases where we have nested nodes with the same name
                r.lastIndex = idx + 1
-               nView = Object.assign({}, view[mVar])
+               nView = Object.assign(nView, view[mVar])
             } else {
                 idx = r.lastIndex
                 nTemplate = nTemplate.replace(match, _compileBlock(section, nView))
+                r = new RegExp(REGEX_SECTIONS) // Reset RegExp
             }
         } else {
             nTemplate = nTemplate.replace(match, '')

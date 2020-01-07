@@ -1,6 +1,6 @@
 {
   "name": "@dcmox/stencil-js",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": false,
   "description": "Just another template engine written in TypeScript. Mustache compatible!",
   "main": "stencil.js",
