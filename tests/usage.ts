@@ -1,15 +1,14 @@
 import { Stencil } from '../stencil'
-import { template, subTemplate, anotherSubTemplate, subSubTemplate, view } from './templates'
+import { template, article, header, nav, view, styleSheet } from './templates'
 
 const subTemplates = {
-    subTemplate,
-    anotherSubTemplate,
-    subSubTemplate
+    styleSheet,
+    article,
+    header,
+    nav
 }
 
-const options = {
-    newLineToBr: true
-}
+const options = {}
 
 console.time('Render time')
 const rendered = Stencil.render(template, view, subTemplates)

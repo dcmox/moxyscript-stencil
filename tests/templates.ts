@@ -1,133 +1,105 @@
 export const template = `
-<h1>Hello world!</h1>
-<p>
-    Hello, my name is {{firstName}} {{lastName}}! Are you ready to build your own templating engine? I know I am!
-</p>
-<p>
-    Some information about me:
-    {{person.details.bio}}
-</p>
-<p>
-    {{{paragraph|excerpt}}}
-</p>
-<p>
-    This is a {{customFilter|lower}}. This is sanitized html: {{html|lower}}
-    This is unfiltered html: {{html|raw}}
-    This is also unfiltered html {{{html}}}
-</p>
-<p>
-    Links:
-    {{htmlLinks|linkify}}
-</p>
-
-{{#condition}}
-Hello world! - This will display if condition evaluates to true!
-{{/condition}}
-
-{{#anotherCondition}}
-This will not display if anotherCondition evaluates to false.
-{{/anotherCondition}}
-
-People:
-<ul>
-{{#people}}
-    <li>{{.}}</li>
-{{/people}}
-</ul>
-
-Beatles:
-<ul>
-{{#beatles}}
-    <ul>{{name}} - {{details.bio}}</ul>
-{{/beatles}}
-</ul>
-
-{{#nested}}{{#a}}{{.}}, {{/a}}{{/nested}}
-
-{{^anotherCondition}}
-This should display!
-{{/anotherCondition}}
-{{! This is a comment. Any tags that are not valid will just be omitted}}
-
-{{arr}}
-
-Nested tag:
-<ul>
-{{#nested.a}}
-<li>{{.}}</li>
-{{/nested.a}}
-</ul>
-
-Even more nested tag:
-{{#nestedC.a}}{{b}}{{/nestedC.a}}
-
-{{lotsOfHtml|stripTags}}
-
-{{> subTemplate}}
-
-Have a nice day!
+<html>
+    <head>
+        <title>stencil-js template engine demo</title>
+        {{> styleSheet}}
+    </head>
+    <body>
+        <main>
+            {{> header}}
+            {{> article}}
+        </main>
+    </body>
+</html>
 `
 
-export const subTemplate = `
-<h1>This is a subtemplate</h1>
-<p>
-My name is {{name}}
-{{> anotherSubTemplate}}
-</p>
+export const styleSheet = `
+<style>
+body{
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+}
+body a {
+    text-decoration: none;
+    color: #888;
+}
+body a:hover {
+    text-decoration: underline;
+}
+#logo {
+    font-size: 32px;
+}
+#logo span{
+    color: #aaa;
+}
+header nav ul, header nav li{
+    list-style: none;
+    display: inline;
+    margin: 0;
+    padding-left: 0;
+}
+header nav {
+    margin: 10px 0 20px 0;
+}
+header nav li{
+    color: #888;
+    border: 1px solid #eee;
+    border-radius: 3px;
+    padding: 4px 8px;
+}
+main {
+    padding: 10px;
+    width: 1000px;
+    margin: 0 auto;
+    background-color: #fafafa;
+    height: 100%;
+}
+article {
+    border-top: 1px dashed #ddd;
+}
+</style>
+`
+export const header = `
+<header>
+    <div id="logo">
+        Stencil-JS <span>templating engine</span>
+    </div>
+    {{> nav}}
+</header>
 `
 
-export const anotherSubTemplate = `
-===Another Sub Template===
-{{beans}}
-{{> subSubTemplate}}
+export const nav = `
+<nav>
+    <ul>
+        <li><a href="#">Nav</a></li>
+        <li><a href="#">Links</a></li>
+        <li><a href="#">Go</a></li>
+        <li><a href="#">Here</a></li>
+    </ul>
+</nav>
 `
-export const subSubTemplate = `
-Hoorah!
+
+export const article = `
+<article>
+    <p>
+        Welcome to Stencil JS! My name is {{firstName}} {{lastName|ucwords}}. If you discover any bugs, 
+        please feel free to report them to {{email}} or via the Stencil-JS GitHub page: 
+        {{gitHubPage|linkify}}
+    </p>
+    <p>
+        If you find this script useful, please make sure to like the project and share it with 
+        other developers who may find it interesting as well!
+    </p>
+    <p>
+        This demo was created to show off the capabilities of the template engine. If you have any
+        feature requests or would like to contribute, feel free to share!
+    </p>
+</article>
 `
 
 export const view = {
+    gitHubPage: 'https://github.com/dcmox/stencil-js',
     firstName: 'Daniel',
-    lastName: 'Moxon',
-    customFilter: 'CUSTOM FILTER',
-    html: '<b>bold html</b>',
-    htmlLinks: `http://www.google.com
-    http://www.yahoo.com`,
-    person: {
-        name: 'Daniel Moxon',
-        age: '31',
-        details: {
-            bio: 'I grew up in Washington State and was born on Valentine\'s day.'
-        }
-    },
-    condition: true,
-    anotherCondition: false,
-    people: ['john', 'sally', 'sue'],
-    beatles: [
-        { "firstName": "John", "lastName": "Lennon", details: { bio: 'I am a dude.' } },
-        { "firstName": "Paul", "lastName": "McCartney", details: { bio: 'I am also a dude.' } },
-        { "firstName": "George", "lastName": "Harrison" },
-        { "firstName": "Ringo", "lastName": "Starr" }
-    ],
-    nested: {a: [1, 2, 3], b: [4, 5, 6]},
-    nestedB: [
-        {a: [1, 2, 3]},
-        {a: [4, 5, 6]},
-    ],
-    nestedC: {
-        a: {b: 'One more time!!'}
-    },
-    arr: [1, 2, 3],
-    "name": function () {
-        return this.firstName + " " + this.lastName;
-    },
-    beans: 'Beans are good',
-    paragraph: `This is a story about a developer who coded for over 20 years. 
-And despite the career, he worked under his peers, whom only had just a few years. 
-No matter the work, no matter the time, this developer just couldn't get another dime. 
-Was it his past, was it his pride, or was it the fact that he never lied?`,
-    lotsOfHtml: `<h1>Strip Tags</h1>
-<p>
-    Will strip a lot of HTML including [<p><br><i><br /><a href="http://www.test.com" alt="test">Link removed</a>] (should be empty) tags among many others.
-</p>
-` 
+    lastName: 'moxon',
+    email: 'dancmox@comcast.net'
 }
