@@ -9,6 +9,7 @@ export interface IStencilOptions {
 }
 
 export const REGEX_SECTIONS = /\{{2}(#|\^)([^}]+)\}{2}((.|\n)*?)\{{2}\/\2\}{2}(\n)?/gm
+export const REGEX_INNER_SECTION = /\{{2}(#|\^)([^}]+)\}{2}/gm
 export const REGEX_TEMPLATES = /\{{2}>([^}]+)\}{2}/g
 export const REGEX_TAGS = /\{{2}([^}]+)\}{2,3}/gm
 export const REGEX_HTML_CHARS = /[&<>"']/g
@@ -50,7 +51,7 @@ export const _compileBlock = (section: any, view: IView, comparator?: any): stri
                 innerResult += _compileTags(inner, Object.assign({}, view, item)).trim() + '\n'
             )
         } else if (!Array.isArray(observe)) {
-            innerResult += _compileTags(inner, Object.assign({}, view, observe)).trim() + '\n'
+            innerResult += _compileTags(inner, Object.assign({}, view, observe)).trim()
         }
     }
     return innerResult
@@ -65,14 +66,22 @@ export const compileBlocks = (template: string, view: IView, subTemplates?: ISub
             nTemplate = subTemplates[mVar] ? nTemplate.replace(match, subTemplates[mVar]) : nTemplate.replace(match, '')
         }
     }
-    while((section = new RegExp(REGEX_SECTIONS).exec(nTemplate)) !== null) {
-        let [ match, operator, mVar ] = section
+
+    let r: RegExp = new RegExp(REGEX_SECTIONS), idx: number = 0, nView: IView = Object.assign({}, view)
+    while((section = r.exec(nTemplate)) !== null) {
+        let [ match, operator, mVar, inner ] = section
         if(~mVar.indexOf('.')) {
             const node = accessNode(mVar, view)
             nTemplate = node ? nTemplate.replace(match, _compileBlock(section, view, node))
                 : nTemplate.replace(match, '')
         } else if ((operator === '#' && view[mVar]) || (operator === '^' && !view[mVar])) {
-            nTemplate = nTemplate.replace(match, _compileBlock(section, view))
+            if (~inner.indexOf('{{#' + mVar + '}}')) { // handles cases where we have nested nodes with the same name
+               r.lastIndex = idx + 1
+               nView = Object.assign({}, view[mVar])
+            } else {
+                idx = r.lastIndex
+                nTemplate = nTemplate.replace(match, _compileBlock(section, nView))
+            }
         } else {
             nTemplate = nTemplate.replace(match, '')
         }

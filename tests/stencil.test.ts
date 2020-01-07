@@ -1,8 +1,35 @@
 const assert = require('assert')
 import * as testSuite from '../stencil'
-import * as testData from './templates'
 
 describe('stencil test suite', () => {
+    it('should render nodes with the same name correctly', () => {
+        let actual = testSuite.Stencil.render("{{#test}}{{#test}}{{test}}{{/test}}{{/test}}", {test: {
+            test: {
+                test: 'Hello World'
+            }
+        }})
+        let expected = `Hello World`
+        assert.equal(actual, expected)
+
+        actual = testSuite.Stencil.render("{{#test}}{{#test}}{{test.test}}{{/test}}{{/test}}", {test: {
+            test: {
+                test: { 
+                    test: 'Hello World'
+                }
+            }
+        }})
+        assert.equal(actual, expected)
+
+        actual = testSuite.Stencil.render("{{#test}}Test {{#test}}{{test.test}}{{/test}}{{/test}}", {test: {
+            test: {
+                test: { 
+                    test: 'Hello World'
+                }
+            }
+        }})
+        expected = `Test Hello World`
+        assert.equal(actual, expected)
+    })
     it('should render a simple template', () => {
         const actual = testSuite.Stencil.render("My name is {{firstName}} {{lastName}}!", {firstName: 'John', lastName: 'Doe'})
         const expected = `My name is John Doe!`
