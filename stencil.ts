@@ -72,7 +72,7 @@ export const compileBlocks = (template: string, view: IView, subTemplates?: ISub
         let [ match, operator, mVar, inner ] = section
         if(~mVar.indexOf('.')) {
             const node = accessNode(mVar, view)
-            nTemplate = node ? nTemplate.replace(match, _compileBlock(section, view, node))
+            nTemplate = node ? nTemplate.replace(match, _compileBlock(section, nView, node))
                 : nTemplate.replace(match, '')
         } else if ((operator === '#' && view[mVar]) || (operator === '^' && !view[mVar])) {
             if (~inner.indexOf('{{#' + mVar + '}}')) { // Handles cases where we have nested nodes with the same name

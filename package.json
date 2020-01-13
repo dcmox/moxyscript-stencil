@@ -1,6 +1,6 @@
 {
   "name": "@dcmox/stencil-js",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": false,
   "description": "Just another template engine written in TypeScript. Mustache compatible!",
   "main": "stencil.js",
@@ -37,7 +37,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dcmox/stenciljs.git"
+    "url": "git+https://github.com/dcmox/stencil-js.git"
   },
   "keywords": [
     "template",
@@ -50,8 +50,8 @@
   "author": "Daniel Moxon (dancmox@comcast.net)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/dcmox/stenciljs/issues"
+    "url": "https://github.com/dcmox/stencil-js/issues"
   },
-  "homepage": "https://github.com/dcmox/stenciljs#readme",
+  "homepage": "https://github.com/dcmox/stencil-js#readme",
   "dependencies": {}
 }
