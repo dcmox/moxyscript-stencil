@@ -170,3 +170,5 @@ export const Stencil = {
         return render(template, view, subTemplates)
     }
 }
+
+export default Stencil
