@@ -60,6 +60,17 @@ describe('stencil test suite', () => {
         const expected = `My name is John Doe!`
         assert.equal(actual, expected)
     })
+
+    it('should render a view function with param', () => {
+        const view = {
+            firstName: 'John', 
+            lastName: 'Doe',
+            fullName: function(firstName: string) { return `${firstName} ${this.lastName}` }
+        }
+        const actual = testSuite.Stencil.render("My name is {{fullName Bob}}!", view)
+        const expected = `My name is Bob Doe!`
+        assert.equal(actual, expected)
+    })
     it('should render a sub template within a variable', () => {
         const view = {
             logoText: `Logo`,

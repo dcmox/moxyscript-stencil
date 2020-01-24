@@ -124,9 +124,19 @@ export const _compileTags = (line: string, view: IView): string => {
             }
             else {
                 if(match.startsWith('{{{') && match.endsWith('}}}')) {
-                    data = typeof view[tag] === 'function' ? view[tag]() : view[tag] ? view[tag] : ''
+                    if(~tag.indexOf(' ')) {
+                         let [fTag, ...args] = tag.split(' ')
+                         data = typeof view[fTag] === 'function' ? view[fTag](...args) : view[tag] ? view[tag] : ''
+                    } else {
+                        data = typeof view[tag] === 'function' ? view[tag]() : view[tag] ? view[tag] : ''
+                    }
                 } else {
-                    data = typeof view[tag] === 'function' ? decodeHTML(view[tag]()) : view[tag] ? decodeHTML(view[tag]) : ''
+                    if(~tag.indexOf(' ')) {
+                        let [fTag, ...args] = tag.split(' ')
+                        data = typeof view[fTag] === 'function' ? decodeHTML(view[fTag](...args)) : view[tag] ? decodeHTML(view[tag]) : ''
+                    } else {
+                        data = typeof view[tag] === 'function' ? decodeHTML(view[tag]()) : view[tag] ? decodeHTML(view[tag]) : ''
+                    }
                 }
             }
         }

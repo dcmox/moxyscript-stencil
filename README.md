@@ -19,6 +19,8 @@ stencil-js is a templating engine that is fast with low overhead. It is compatib
 
 * Should be fully compatible with Mustache templates. If you know Mustache, you already know 90% of stencil-js.
 
+* Support for helpers with parameters. Great for conditional logic.
+
 * Built from scratch with no dependencies
 
 * We encourage contribution and suggestions to help improve the templating engine!
@@ -41,6 +43,23 @@ console.time('Render time')
 const rendered = Stencil.render(template, view)
 console.timeEnd('Render time')
 console.log(rendered) // outputs Hello world, my name is John Doe!
+```
+
+```typescript 
+const options = {
+    newLineToBr: true
+}
+const template = `<a href="/home" {{{isActive home}}}>Home</a>`
+const view = {
+    firstName: 'John',
+    lastName: 'Doe',
+    path: 'home',
+    isActive: function(path: string) { return path === this.path ? 'class="active"' : '' }
+}
+console.time('Render time')
+const rendered = Stencil.render(template, view)
+console.timeEnd('Render time')
+console.log(rendered) // outputs class="active"
 ```
 
 ### HTML
