@@ -14,7 +14,7 @@ exports.HTML_CHAR_MAP = {
     '<': '&lt;',
     '>': '&gt;',
     '"': '&quot;',
-    '\'': '&#039;',
+    "'": '&#039;',
     '`': '&#x60;'
 };
 exports.IGNORE_HTML_FILTERS = ['raw', 'linkify'];
@@ -28,18 +28,24 @@ exports._compileBlock = function (section, view, comparator) {
     var mVar = section[2], inner = section[3];
     var observe = comparator ? comparator : view[mVar];
     var innerResult = '';
-    if (~inner.indexOf('{{.}}')) { // All items in array
+    if (~inner.indexOf('{{.}}')) {
+        // All items in array
         if (Array.isArray(observe)) {
-            observe.forEach(function (item) { return innerResult += inner.replace('{{.}}', item).trim() + '\n'; });
+            observe.forEach(function (item) {
+                return (innerResult += inner.replace('{{.}}', item).trim() + '\n');
+            });
         }
-        else if (typeof observe === 'object') { // Section within a section
+        else if (typeof observe === 'object') {
+            // Section within a section
             innerResult = exports.compileBlocks(inner, Object.assign({}, view, observe));
         }
     }
-    else { // Check if we have variables that are part of the section
-        if (typeof observe[0] === "object") {
+    else {
+        // Check if we have variables that are part of the section
+        if (typeof observe[0] === 'object') {
             observe.forEach(function (item) {
-                return innerResult += exports._compileTags(inner, Object.assign({}, view, item)).trim() + '\n';
+                return (innerResult +=
+                    exports._compileTags(inner, Object.assign({}, view, item)).trim() + '\n');
             });
         }
         else if (!Array.isArray(observe)) {
@@ -54,7 +60,9 @@ exports.compileBlocks = function (template, view, subTemplates) {
         while ((section = new RegExp(exports.REGEX_TEMPLATES).exec(nTemplate)) !== null) {
             var match = section[0], mVar = section[1];
             mVar = mVar.trim();
-            nTemplate = subTemplates[mVar] ? nTemplate.replace(match, subTemplates[mVar]) : nTemplate.replace(match, '');
+            nTemplate = subTemplates[mVar]
+                ? nTemplate.replace(match, subTemplates[mVar])
+                : nTemplate.replace(match, '');
         }
     }
     var r = new RegExp(exports.REGEX_SECTIONS), idx = 0, nView = Object.assign({}, view);
@@ -62,11 +70,14 @@ exports.compileBlocks = function (template, view, subTemplates) {
         var match = section[0], operator = section[1], mVar = section[2], inner = section[3];
         if (~mVar.indexOf('.')) {
             var node = exports.accessNode(mVar, view);
-            nTemplate = node ? nTemplate.replace(match, exports._compileBlock(section, nView, node))
+            nTemplate = node
+                ? nTemplate.replace(match, exports._compileBlock(section, nView, node))
                 : nTemplate.replace(match, '');
         }
-        else if ((operator === '#' && view[mVar]) || (operator === '^' && !view[mVar])) {
-            if (~inner.indexOf('{{#' + mVar + '}}')) { // Handles cases where we have nested nodes with the same name
+        else if ((operator === '#' && view[mVar]) ||
+            (operator === '^' && !view[mVar])) {
+            if (~inner.indexOf('{{#' + mVar + '}}')) {
+                // Handles cases where we have nested nodes with the same name
                 r.lastIndex = idx + 1;
                 nView = Object.assign(nView, view[mVar]);
             }
@@ -91,7 +102,7 @@ exports.accessNode = function (mVar, view) {
     }
     for (var i = 1; i < nodes.length; i++) {
         vLevel = vLevel[nodes[i]];
-        if (typeof vLevel !== "object") {
+        if (typeof vLevel !== 'object') {
             break;
         }
     }
@@ -107,6 +118,7 @@ exports._compileTags = function (line, view) {
         var tag = match.replace(exports.REGEX_VARS, '');
         var data, filter = '';
         if (~tag.indexOf('|')) {
+            ;
             _a = tag.split('|'), tag = _a[0], filter = _a[1];
         }
         if (filter) {
@@ -125,10 +137,41 @@ exports._compileTags = function (line, view) {
             }
             else {
                 if (match.startsWith('{{{') && match.endsWith('}}}')) {
-                    data = typeof view[tag] === 'function' ? view[tag]() : view[tag] ? view[tag] : '';
+                    if (~tag.indexOf(' ')) {
+                        var _b = tag.split(' '), fTag = _b[0], args = _b.slice(1);
+                        data =
+                            typeof view[fTag] === 'function'
+                                ? view[fTag].apply(view, args) : view[tag]
+                                ? view[tag]
+                                : '';
+                    }
+                    else {
+                        data =
+                            typeof view[tag] === 'function'
+                                ? view[tag]()
+                                : view[tag]
+                                    ? view[tag]
+                                    : '';
+                    }
                 }
                 else {
-                    data = typeof view[tag] === 'function' ? exports.decodeHTML(view[tag]()) : view[tag] ? exports.decodeHTML(view[tag]) : '';
+                    if (~tag.indexOf(' ')) {
+                        var _c = tag.split(' '), fTag = _c[0], args = _c.slice(1);
+                        data =
+                            typeof view[fTag] === 'function'
+                                ? exports.decodeHTML(view[fTag].apply(view, args))
+                                : view[tag]
+                                    ? exports.decodeHTML(view[tag])
+                                    : '';
+                    }
+                    else {
+                        data =
+                            typeof view[tag] === 'function'
+                                ? exports.decodeHTML(view[tag]())
+                                : view[tag]
+                                    ? exports.decodeHTML(view[tag])
+                                    : '';
+                    }
                 }
             }
         }
@@ -142,17 +185,32 @@ exports.decodeHTML = function (html) {
 exports.defaultFilterMap = {
     lower: function (res) { return res.toLowerCase(); },
     upper: function (res) { return res.toUpperCase(); },
-    linkify: function (res) { return res.replace(exports.REGEX_LINK, function (m) { return "<a href=\"" + m + "\" title=\"" + m + "\">" + m + "</a>"; }); },
-    ucwords: function (res) { return ~res.indexOf(' ')
-        ? res.split(' ').map(function (word) { return word.charAt(0).toUpperCase() + word.slice(1); }).join(' ')
-        : res.charAt(0).toUpperCase() + res.slice(1); },
-    excerpt: function (res) { return (res.length <= 255 ? res : res.slice(0, res.substring(0, 255).lastIndexOf(' ')) + '...'); },
+    linkify: function (res) {
+        return res.replace(exports.REGEX_LINK, function (m) { return "<a href=\"" + m + "\" title=\"" + m + "\">" + m + "</a>"; });
+    },
+    ucwords: function (res) {
+        return ~res.indexOf(' ')
+            ? res
+                .split(' ')
+                .map(function (word) {
+                return word.charAt(0).toUpperCase() + word.slice(1);
+            })
+                .join(' ')
+            : res.charAt(0).toUpperCase() + res.slice(1);
+    },
+    excerpt: function (res) {
+        return res.length <= 255
+            ? res
+            : res.slice(0, res.substring(0, 255).lastIndexOf(' ')) + '...';
+    },
     stripTags: function (res) { return res.replace(exports.REGEX_HTML_TAGS, ''); }
 };
 var filterMap = Object.assign({}, exports.defaultFilterMap);
 exports.filterVar = function (str, filter) {
     var result = filterMap[filter] ? filterMap[filter](str) : str;
-    return ~exports.IGNORE_HTML_FILTERS.indexOf(filter) ? result : exports.decodeHTML(result) || result;
+    return ~exports.IGNORE_HTML_FILTERS.indexOf(filter)
+        ? result
+        : exports.decodeHTML(result) || result;
 };
 exports.Stencil = {
     render: function (template, view, subTemplates, options) {
@@ -167,4 +225,4 @@ exports.Stencil = {
         return exports.render(template, view, subTemplates);
     }
 };
-exports["default"] = exports.Stencil;
+module.exports = exports.Stencil;
